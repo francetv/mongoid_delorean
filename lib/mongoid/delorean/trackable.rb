@@ -117,10 +117,6 @@ module Mongoid
         def attributes_with_relations
           _attributes = self.attributes.dup
 
-          %w{staging live}.each do |col|
-            _attributes.delete(col)
-            _attributes.delete(col.to_sym)
-          end
 
           relation_attrs = {}
           self.embedded_relations.each do |name, details|
