@@ -32,10 +32,6 @@ module Mongoid
         @__track_changes.nil? ? Mongoid::Delorean.config.track_history : @__track_changes
       end
 
-      def skip_parent_tracking
-        Mongoid::Delorean.config.skip_parent_tracking
-      end
-
       def without_history_tracking
         previous_track_change = @__track_changes
         @__track_changes = false
@@ -122,6 +118,10 @@ module Mongoid
           end
           _attributes.merge!(relation_attrs)
           return _attributes
+        end
+
+        def skip_parent_tracking
+          Mongoid::Delorean.config.skip_parent_tracking
         end
 
         def track_me
