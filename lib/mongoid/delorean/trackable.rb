@@ -16,26 +16,7 @@ module Mongoid
 
       def save_version
         if self.track_history?
-          last_version = self.versions.sort_by(&:version).last
-          _version = last_version ? last_version.version + 1 : 1
-
-          _attributes = self.attributes_with_relations
-          _attributes.merge!("version" => _version)
-          _changes = self.changes_with_relations.dup
-          _changes.merge!("version" => [self.version, _version])
-
-          Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
-          self.without_history_tracking do
-            self.version = _version
-            # self.save!
-            unless(self.new_record?)
-              if ::Mongoid.const_defined? :Observer
-                self.set(:version, _version)
-              else
-                self.set(version: _version)
-              end
-            end
-          end
+          self.track_me
 
           @__track_changes = true
         end
@@ -49,6 +30,10 @@ module Mongoid
 
       def track_history?
         @__track_changes.nil? ? Mongoid::Delorean.config.track_history : @__track_changes
+      end
+
+      def skip_parent_tracking
+        Mongoid::Delorean.config.skip_parent_tracking
       end
 
       def without_history_tracking
@@ -71,17 +56,21 @@ module Mongoid
       module CommonEmbeddedMethods
 
         def save_version
-          if self._parent.respond_to?(:save_version)
-            if self._parent.respond_to?(:track_history?)
-              if self._parent.track_history?
+          
+          if !self.skip_parent_tracking
+            if self._parent.respond_to?(:save_version)
+              if self._parent.respond_to?(:track_history?)
+                if self._parent.track_history?
+                  self._parent.save_version
+                end
+              else
                 self._parent.save_version
               end
-            else
-              self._parent.save_version
             end
+          else
+            self.track_me
           end
-
-          true
+          true 
         end
 
       end
@@ -135,6 +124,28 @@ module Mongoid
           return _attributes
         end
 
+        def track_me
+          last_version = self.versions.sort_by(&:version).last
+          _version = last_version ? last_version.version + 1 : 1
+
+          _attributes = self.attributes_with_relations
+          _attributes.merge!("version" => _version)
+          _changes = self.changes_with_relations.dup
+          _changes.merge!("version" => [self.version, _version])
+
+          Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
+          self.without_history_tracking do
+            self.version = _version
+            # self.save!
+            unless(self.new_record?)
+              if ::Mongoid.const_defined? :Observer
+                self.set(:version, _version)
+              else
+                self.set(version: _version)
+              end
+            end
+          end
+        end
       end
 
     end
