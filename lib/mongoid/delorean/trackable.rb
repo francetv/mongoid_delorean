@@ -64,7 +64,9 @@ module Mongoid
               end
             end
           else
-            self.track_me
+            if self.track_history? 
+              self.track_me
+            end
           end
           true 
         end
