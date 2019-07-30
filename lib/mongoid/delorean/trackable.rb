@@ -133,7 +133,7 @@ module Mongoid
           _attributes = self.attributes_with_relations
           _attributes.merge!("version" => _version)
           _changes = self.changes_with_relations.dup
-          _changes.merge!("version" => [last_version.version || 0, _version])
+          _changes.merge!("version" => [last_version.try(:version) || 0, _version])
 
           Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
           self.without_history_tracking do
