@@ -25,7 +25,7 @@ GEM
     moped (1.5.2)
     multi_json (1.9.3)
     origin (1.1.0)
-    rake (10.1.0)
+    rake (13.0.1)
     rspec (2.11.0)
       rspec-core (~> 2.11.0)
       rspec-expectations (~> 2.11.0)
