@@ -1,7 +1,7 @@
-require "mongoid/relations/embedded/in"
+require "mongoid/association/embedded/embedded_in"
 
 module Mongoid
-  module Relations
+  module Association
     module Macros
       module ClassMethods
         alias :embedded_in_without_history :embedded_in
