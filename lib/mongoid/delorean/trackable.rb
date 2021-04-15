@@ -87,7 +87,7 @@ module Mongoid
           self.embedded_relations.each do |name, details|
             relation = self.send(name)
             relation_changes[name] = []
-            if details.relation == Mongoid::Relations::Embedded::One
+            if details.relation == Mongoid::Association::Embedded::EmbedsOne::Proxy
               relation_changes[name] = relation.changes_with_relations if relation
             else
               r_changes = relation.map {|o| o.changes_with_relations}
@@ -108,7 +108,7 @@ module Mongoid
           relation_attrs = {}
           self.embedded_relations.each do |name, details|
             relation = self.send(name)
-            if details.relation == Mongoid::Relations::Embedded::One
+            if details.relation == Mongoid::Association::Embedded::EmbedsOne::Proxy
               relation_attrs[name] = relation.attributes_with_relations if relation
             else
               relation_attrs[name] = []
